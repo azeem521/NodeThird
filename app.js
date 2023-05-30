@@ -9,7 +9,20 @@ const server=http.createServer((req,res)=>{
         res.end();
     }
     if(url==='/message'){
-        fs.writeFileSync('message.txt','This is Dummy data');
+        const body=[];
+        req.on('data',(chunks)=>{
+            console.log(chunks);
+            body.push(chunks)
+        });
+        req.on('end',()=>{
+            const parseBody=Buffer.concat(body).toString();
+            console.log(parseBody); // this returns msg='inputed value'
+            // to extract only inputed value means to avoid msg keyword
+            const message=parseBody.split('=')[1];
+            // move write file sync into end function
+            fs.writeFileSync('message.txt',message);
+        })
+        // fs.writeFileSync('message.txt','This is Dummy data');
         res.statusCode=302;
         res.setHeader('Location','/');
         return res.end()
